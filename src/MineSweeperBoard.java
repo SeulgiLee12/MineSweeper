@@ -4,9 +4,14 @@ import java.util.Scanner;
 public class MineSweeperBoard {
     public static void main(String[] args) {
         int input = 0;
-
         try {
             Scanner scan = new Scanner(System.in);
+            while (true) {
+                System.out.println("input Messages : ");
+                input = scan.nextInt();
+                if (input <= 4 || input >= 16) System.out.println("invalid number");
+                else break;
+            }
             while (true) {
                 System.out.println("input Messages : ");
                 input = scan.nextInt();
@@ -17,7 +22,6 @@ public class MineSweeperBoard {
             e.printStackTrace();
         }
         int mine_num = 2;
-
         int mine_pos[] = new int[mine_num];
         String board[][] = new String[input][input];
 
