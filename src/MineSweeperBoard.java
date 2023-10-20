@@ -4,24 +4,25 @@ import java.util.Scanner;
 public class MineSweeperBoard {
     public static void main(String[] args) {
         int input = 0;
+        int mine_num = 0;
         try {
             Scanner scan = new Scanner(System.in);
             while (true) {
-                System.out.println("input Messages : ");
+                System.out.println("input row number : ");
                 input = scan.nextInt();
                 if (input <= 4 || input >= 16) System.out.println("invalid number");
                 else break;
             }
             while (true) {
-                System.out.println("input Messages : ");
-                input = scan.nextInt();
-                if (input <= 4 || input >= 16) System.out.println("invalid number");
+                System.out.println("input mine number : ");
+                mine_num = scan.nextInt();
+                if (Math.floor(input*input*0.1) > mine_num || Math.floor(input*input*0.2) < mine_num)
+                    System.out.println("invalid number");
                 else break;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        int mine_num = 2;
         int mine_pos[] = new int[mine_num];
         String board[][] = new String[input][input];
 
