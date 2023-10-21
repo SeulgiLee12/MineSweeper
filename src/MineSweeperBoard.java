@@ -17,7 +17,7 @@ public class MineSweeperBoard {
                 System.out.println("input mine number : ");
                 mine_num = scan.nextInt();
                 if (Math.floor(input*input*0.1) > mine_num || Math.floor(input*input*0.2) < mine_num)
-                    System.out.println("invalid number");
+                    System.out.println("invalid number\n");
                 else break;
             }
         } catch (Exception e) {
@@ -29,7 +29,6 @@ public class MineSweeperBoard {
         Random random = new Random();
         for (int i=0; i<mine_num; i++) {
             mine_pos[i] = random.nextInt(input,input*input);
-            System.out.println(mine_pos[i]);
         }
 
         for (int i=0; i<input; i++) {
