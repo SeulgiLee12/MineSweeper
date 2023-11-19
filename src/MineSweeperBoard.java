@@ -2,81 +2,114 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class MineSweeperBoard {
-    public static void main(String[] args) {
-        int input = 0;
-        int mine_num = 0;
+    int boardSize = 0;
+    int mineNum = 0;
+    final String MINE = "X";
+    final String EMPTY = "0";
+    final int MIN_NUMBER_OF_MINES = 4;
+    final int MAX_NUMBER_OF_MINES = 16;
+    int patternForCheckMines[] = {-1,0,1};
+    int numberOfMinesAroundCell = 0;
+    String board[][];
+    int positionOfMines[];
+    Scanner scan = new Scanner(System.in);
+    Random random = new Random();
 
+    public void makeAndPrintBoard() {
+        setBoardRowAndMineNumbers();
+        makeEmptyBoard();
+        setMinesPosition();
+        markMines();
+        markNumbersOfMinesAroundCell();
+        printBoard();
+    }
+
+
+    public void setBoardRowAndMineNumbers() {
         // 게임보드 크기랑 지뢰개수 입력 받기
         try {
-            Scanner scan = new Scanner(System.in);
-            while (true) {
-                System.out.println("input row number : ");
-                input = scan.nextInt();
-                if (input <= 4 || input >= 16) System.out.println("invalid number");
-                else break;
-            }
-            while (true) {
-                System.out.println("input mine number : ");
-                mine_num = scan.nextInt();
-                if (Math.floor(input*input*0.1) > mine_num || Math.floor(input*input*0.2) < mine_num)
-                    System.out.println("invalid number");
-                else break;
-            }
+            setBoardRow();
+            setMineNum();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public void makeEmptyBoard() {
+        board = new String[boardSize][boardSize];
+        for (int row=0; row<boardSize; row++)
+            for (int column=0; column<boardSize; column++)
+                board[row][column] = EMPTY;
+    }
+    public void setMinesPosition() {
+        positionOfMines = new int[mineNum];
+        for (int target=0; target<mineNum; target++) {
+            positionOfMines[target] = random.nextInt(boardSize,boardSize*boardSize);
+            if (isMineDuplicated(target)) target--;
 
-        // 지뢰찾기 보드 만들기
-        String board[][] = new String[input][input];
-        for (int i=0; i<input; i++) {
-            for (int j=0; j<input; j++) {
-                board[i][j] = "O";
-            }
         }
-
-        // 지뢰 랜덤 배치
-        int mine_list[] = new int[mine_num];
-        Random random = new Random();
-        for (int i=0; i<mine_num; i++) {
-            mine_list[i] = random.nextInt(input,input*input);
-            for (int j=0; j<i; j++) { // 중복검사
-                if (mine_list[i] == mine_list[j]) {
-                    mine_list[i] = random.nextInt(input,input*input);
-                    break;
-                }
-            }
+    }
+    public void markMines() {
+        for (int mineCell: positionOfMines) {
+            int row = mineCell/boardSize; int column = mineCell%boardSize;
+            board[row][column] = MINE;
         }
-
-        // 지뢰 위치 표시
-        for (int n: mine_list) {
-            int a = n/input; int b = n%input;
-            board[a][b] = "X";
+    }
+    public void markNumbersOfMinesAroundCell() {
+        for (int row=0; row<boardSize; row++)
+            for (int column=0; column<boardSize; column++) {
+                if (board[row][column].equals(MINE)) continue;
+                board[row][column] = Integer.toString(countMinesAroundCell(row, column));
         }
-
-        // 주변 지뢰 개수 표시
-        int mine_pos[] = {-1,0,1};
-        int mine_around = 0;
-        for (int i=0; i<input*input; i++) {
-            if (board[i/input][i%input] == "X") continue;
-            for (int n: mine_pos) {
-                for (int m: mine_pos) {
-                    if (i/input+n >= 0 && i/input+n < input && i%input+m >= 0 && i%input+m < input) {
-                        if (board[i/input+n][i%input+m] == "X") mine_around++;
-                    }
-                }
-            }
-            board[i/input][i%input] = Integer.toString(mine_around);
-            mine_around = 0;
-        }
-
-        // 게임보드 출력
-        for (int i=0; i<input; i++) {
-            for (int j=0; j<input; j++) {
-                System.out.print(board[i][j]);
+    }
+    public void printBoard() {
+        for (int row=0; row<boardSize; row++) {
+            for (int column=0; column<boardSize; column++) {
+                System.out.print(board[row][column]);
             }
             System.out.println();
         }
+    }
 
+    public void setMineNum() {
+        while (true) {
+            System.out.println("mine number : ");
+            mineNum = scan.nextInt();
+            if (Math.floor(boardSize*boardSize*0.1) > mineNum || Math.floor(boardSize*boardSize*0.2) < mineNum)
+                System.out.println("invalid number");
+            else break;
+        }
+    }
+    public void setBoardRow() {
+        while (true) {
+            System.out.println("row number : ");
+            boardSize = scan.nextInt();
+            if (boardSize <= MIN_NUMBER_OF_MINES || boardSize >= MAX_NUMBER_OF_MINES)
+                System.out.println("invalid number");
+            else break;
+        }
+    }
+    public int countMinesAroundCell(int row, int col) {
+        numberOfMinesAroundCell = 0;
+        for (int rowPattern: patternForCheckMines) {
+            for (int colPattern: patternForCheckMines)
+                if (row+rowPattern >= 0 &&
+                    row+rowPattern < boardSize &&
+                    col+colPattern >= 0 &&
+                    col+colPattern < boardSize)
+                    if (board[row+rowPattern][col+colPattern].equals(MINE)) numberOfMinesAroundCell++;
+        }
+        return numberOfMinesAroundCell;
+    }
+    public boolean isMineDuplicated(int target) {
+        for (int check=0; check<target; check++)
+            if (positionOfMines[target] == positionOfMines[check]) return true;
+        return false;
+    }
+
+    public static void main(String[] args) {
+        MineSweeperBoard m = new MineSweeperBoard();
+        m.makeAndPrintBoard();
     }
 }
 
